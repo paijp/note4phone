@@ -29,6 +29,20 @@
             </intent-filter>
         </activity>
 
+        <!-- 音声認識テスト（起動するとすぐ聞き始める） -->
+        <activity
+            android:name=".VoiceActivity"
+            android:exported="true"
+            android:label="音声メモ"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar"
+            android:launchMode="singleTask"
+            android:showWhenLocked="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <!-- アプリ一覧から起動する更新確認 -->
         <activity
             android:name=".UpdateActivity"
