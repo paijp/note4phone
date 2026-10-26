@@ -2,11 +2,20 @@ name: Build Android APK
 
 on:
   push:
+    branches: [main]
+    paths-ignore:
+      - 'rel/**'
   workflow_dispatch:
+
+concurrency:
+  group: build-main
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -24,8 +33,14 @@ jobs:
       - name: Build debug APK
         run: gradle --no-daemon assembleDebug
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: CallRecTest
-          path: app/build/outputs/apk/debug/app-debug.apk
+      # rel/ に APK とバージョン番号を置く（アプリの更新チェックが参照する）
+      - name: Commit APK to rel/
+        run: |
+          mkdir -p rel
+          cp app/build/outputs/apk/debug/app-debug.apk rel/CallRecTest.apk
+          echo "$GITHUB_RUN_NUMBER" > rel/version.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add rel/
+          git diff --staged --quiet || git commit -m "build: update APK ($GITHUB_RUN_NUMBER)"
+          git push origin HEAD:main
